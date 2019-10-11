@@ -7,14 +7,15 @@ class GiftResult:
     msg=''
     code=''
     codeDic={
-        '417':True,
-        '424':True
+        '424':True,
+        '417':True
     }
     def __init__(self,dic):
         self.msg=dic['msg']
         self.code=dic['code']
     def valid(self):
-        return GiftResult.codeDic.__contains__(self.code)
+        #print(f'{self.code} in {GiftResult.codeDic}-> {str(self.code) in GiftResult.codeDic}' )
+        return not str(self.code) in GiftResult.codeDic
 dicMap="abcdefghijklmnopqrstuvwxyz0123456789"
 usedMap={}
 lock=threading.Lock()
@@ -48,10 +49,10 @@ class Runner(threading.Thread):
                 j=json.loads(r.text)
                 lock.acquire()
                 usedMap[code]=GiftResult(j)
-                # if usedMap[code].valid(): 
-                #     print(f"success:{code}:{j['code']}")
-                # else:
-                #     print(f"fail:{code}:{j['code']}")
+                if usedMap[code].valid(): 
+                    print(f"success:{code}->{usedMap[code].msg}")
+                else:
+                    pass#print(f"fail:{code}:{j['code']}")
                 
                 lock.release()
                 if totalCount>thisRoundCount:
@@ -75,6 +76,6 @@ if __name__ == "__main__":
                 threadPool[i].start()
             tmpResult=f'{tmpResult} {threadPool[i].hdlCount-lastTimeHdlCount[i+1]}'
             lastTimeHdlCount[i+1]=threadPool[i].hdlCount
-        print(f'{totalCount} ： {totalCount-lastTimeHdlCount[0]} -> {tmpResult}')
+        # print(f'{totalCount} ： {totalCount-lastTimeHdlCount[0]} -> {tmpResult}')
         lastTimeHdlCount[0]=totalCount
     pass

