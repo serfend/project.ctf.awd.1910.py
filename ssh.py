@@ -30,11 +30,10 @@ class SSHserver:
         paramiko.util.log_to_file('paramiko.log')
         print('ssh ing')
         self.ssh.connect(
-            hostname = "192.168.43.38",
-            port = 1002,
-            username = "root",
-            #pkey=pkey
-            password='toorftp'
+            hostname = "47.74.238.240",
+            port = 2201,
+            username = "ctf",
+            pkey='a356229c3c7686abaa85e893d86f672'
         )
         print('ssh ing')
         #执行命令

