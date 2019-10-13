@@ -31,7 +31,6 @@ class weapons:
     def touchTroj(self,index):
         return self.requestServer(f'http://{config.ips[index]}/{self.team[index].immortalTrojFilename}','','get','','','')
     def trojTime(self,index):
-        self.clearTroj(index)
         self.loadTroj(index)
         return self.touchTroj(index)
     def runCmd(self,index,cmd):
@@ -43,7 +42,7 @@ class weapons:
         return self.requestServer(self.getTeamUrl(index),payload,'post','','','') 
         
     def requestServer(self,url,payload,method,headers,resultStartPos,resultEndPos):
-        print(f"{url} -> {str(payload)}")
+        #print(f"{url} -> {str(payload)}")
         try:
             fun=eval(f'requests.{method}')
             if method=='get':

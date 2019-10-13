@@ -3,3 +3,9 @@ CVE库
 
 - alias cat 'flag{sajhewjgjnsknaf}' 重定向指令
 - chattr -i #path# 文件上锁
+
+
+https://github.com/Ares-X/AWD-Predator-Framework
+https://github.com/wupco/weblogger
+https://github.com/admintony/Prepare-for-AWD
+https://github.com/ssooking/CTFDefense

