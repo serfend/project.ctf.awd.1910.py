@@ -29,7 +29,9 @@ class ServerConfig:
         self.localBkPath=localBkPath
 class CmdResult:
     def getResult(self):
-        return self.msg.decode()
+        return self.result
+    def getMsg(self):
+        return self.msg
     def execCmd(self,cmd):
         self.stdin.write(cmd)
         self.stdin.flush()
@@ -40,11 +42,8 @@ class CmdResult:
         self.stderr=stderr
         self.hdlStream()
     def hdlStream(self):
-        self.errinfo=self.stderr.read()
-        if len(self.errinfo)>0:
-            self.msg=self.errinfo
-            return
-        self.msg=self.stdout.read()
+        self.result=self.stderr.read().decode()
+        self.msg=self.stdout.read().decode()
 class SSH:
     bckPath=[]
     @staticmethod
@@ -72,9 +71,11 @@ class SSH:
         self.ssh._transport = self.transport
         self.sftp = paramiko.SFTPClient.from_transport(self.transport)
     def disconnect(self):
+        print('ssh.disconnect()')
         self.transport.close()
     def execCmd(self,cmd):
         print(f"ssh.execCmd:{cmd}")
+        cmd=cmd.replace(';', ';\n')
         stdin, stdout, stderr = self.ssh.exec_command(cmd)
         return CmdResult(stdin,stdout,stderr)
     def getLocalPath(self,childPath):
