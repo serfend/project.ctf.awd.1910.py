@@ -6,7 +6,7 @@
 - [ ] crontab 
     定时提交flag=>{
         wget: usr/bin/wget --cookies=on --load-cookies=#file# --keep-session-cookies #url#
-        curl:
+        curl: 
     }
 - [ ] 
 
@@ -15,3 +15,5 @@
 
 #SSH
 - [ ] backup/redeploy server
+    - [ ] sftp
+    - [ ] cmd exec

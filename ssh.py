@@ -1,4 +1,6 @@
 import paramiko
+import config
+import os
 class DbConfig:
     sqlConnectCmd={
         'mysql':'mysql '
@@ -12,38 +14,51 @@ class DbConfig:
     @property
     def connectCmd():
         return f'1'
+class sshConfig:
+    def __init__(self,hostname,port,username,password,pfile):
+        self.hostname=hostname
+        self.port=port
+        self.username=username
+        self.password=password
+        self.pfile=pfile
 class ServerConfig:
-    def __init__(self, dbConfig,webPath,localBkPath):
-        pass
+    def __init__(self,sshConfig, dbConfig,webPath,localBkPath=''):
+        self.sshConfig=sshConfig
+        self.dbConfig=dbConfig
+        self.webPath=webPath
+        self.localBkPath=localBkPath
+
 class SSHserver:
-    def __init__(self,serverConfig):
-        self.interval=60000
-        #创建一个ssh的客户端，用来连接服务器
+    def connect(self):
+        print(f'sshing:{self.sshConfig.hostname}:{self.sshConfig.port}')
+        self.transport = paramiko.Transport((self.sshConfig.hostname, int(self.sshConfig.port)))
+        self.transport.connect(username=self.sshConfig.username, password=self.sshConfig.password)
         self.ssh = paramiko.SSHClient()
-        #创建一个ssh的白名单
-        self.know_host = paramiko.AutoAddPolicy()
-        #加载创建的白名单
-        self.ssh.set_missing_host_key_policy(self.know_host)
-        #连接服务器
-        pkey=paramiko.RSAKey.from_private_key_file('kali')
-        
+        self.ssh._transport = self.transport
+        self.sftp = paramiko.SFTPClient.from_transport(self.transport)
+    def disconnect(self):
+        self.transport.close()
+    def execCmd(self,cmd):
+        stdin, stdout, stderr = self.ssh.exec_command(cmd)
+        return stdin,stdout,stderr
+    def getLocalPath(self,childPath):
+        return f'{self.root}/{config.localBkPath}/{childPath}'
+    def getWebPath(self,childPath):
+        return f'{config.webrootPath}/{childPath}'
+    def upload(self,filepath,serverpath):
+        self.sftp.put(self.getLocalPath(filepath),self.getWebPath(serverpath))
+    def download(self,serverpath,filepath):
+        self.sftp.get(self.getWebPath(serverpath),self.getLocalPath(filepath))
+    def __del__(self):
+        self.disconnect()
+    def __init__(self,serverConfig):
+        self.root=os.getcwd()
+        self.serverConfig=serverConfig
+        self.sshConfig=self.serverConfig.sshConfig
+        self.dbConfig=self.serverConfig.dbConfig
+        self.webPath=self.serverConfig.webPath
+        self.localBkPath=self.serverConfig.localBkPath
         paramiko.util.log_to_file('paramiko.log')
-        print('ssh ing')
-        self.ssh.connect(
-            hostname = "47.74.238.240",
-            port = 2201,
-            username = "ctf",
-            pkey='a356229c3c7686abaa85e893d86f672'
-        )
-        print('ssh ing')
-        #执行命令
-        stdin,stdout,stderr = ssh.exec_command("ls")
-        #stdin  标准格式的输入，是一个写权限的文件对象
-        #stdout 标准格式的输出，是一个读权限的文件对象
-        #stderr 标准格式的错误，是一个写权限的文件对象
-        
-        print(stdout.read().decode())
-        
         pass
     def __del__(self):
         self.ssh.close()
