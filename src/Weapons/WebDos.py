@@ -1,3 +1,5 @@
+import random
+import requests
 def upload(self,rawFile):
         url=f'http://47.74.224.5:37002/ws_utc/resources/setting/keystore?timestamp={int(time.time()*1000)}'
         
