@@ -1,6 +1,8 @@
 import paramiko
 import os
 import time
+import Tools.CmdExec
+import Setting
 class DbConfig:
     sqlConnectCmd={
         'mysql':'mysql '
@@ -22,12 +24,13 @@ class SSH_Config:
         self.password=password
         self.pfile=pfile
 class ServerConfig:
-    def __init__(self,sshConfig, dbConfig,webrootPath,localBkPath='',permissionWebPath=''):
+    def __init__(self,sshConfig, dbConfig,webrootPath,localBkPath='',localCodeReviewPath='',permissionWebPath=''):
         self.sshConfig=sshConfig
         self.dbConfig=dbConfig
         self.webrootPath=webrootPath
         self.localBkPath=localBkPath
         self.permissionWebPath=permissionWebPath
+        self.localCodeReviewPath=localCodeReviewPath
 class CmdResult:
     def getResult(self):
         return self.result
@@ -64,25 +67,35 @@ class SSH:
                 ),
             config['self']['webrootPath'],
             config['self']['localBkPath'],
+            config['self']['localCodeReviewPath'],
             config['self']['permissionWebPath'])
     def connect(self):
         print(f'sshing:{self.sshConfig.hostname}:{self.sshConfig.port}')
-        self.transport = paramiko.Transport((self.sshConfig.hostname, int(self.sshConfig.port)))
-        self.transport.connect(username=self.sshConfig.username, password=self.sshConfig.password)
-        self.ssh = paramiko.SSHClient()
-        self.ssh._transport = self.transport
-        self.sftp = paramiko.SFTPClient.from_transport(self.transport)
+        try:
+            self.transport = paramiko.Transport((self.sshConfig.hostname, int(self.sshConfig.port)))
+            self.transport.connect(username=self.sshConfig.username, password=self.sshConfig.password)
+            self.ssh = paramiko.SSHClient()
+            self.ssh._transport = self.transport
+            self.sftp = paramiko.SFTPClient.from_transport(self.transport)
+            self.connected=True
+        except Exception as e:
+            print(e)
     def disconnect(self):
         print('ssh.disconnect()')
-        self.transport.close()
+        self.connected=False
+        try:
+            self.transport.close()
+        except Exception as e:
+            print(e)
     def execCmd(self,cmd):
         cmd=cmd.replace(';', ';\n')
         stdin, stdout, stderr = self.ssh.exec_command(cmd)
         result= CmdResult(stdin,stdout,stderr)
-        print(f"ssh.execCmd:{cmd} \n-->{result.getResult()}")
+        showstr='' if result.getResult()=='' else f'\n-->{result.getResult()}'
+        print(f"ssh.execCmd:{cmd} {showstr}")
         return result
     def getLocalPath(self,childPath):
-        return f'{self.root}/{self.localBkPath}/{childPath}'
+        return f'{Setting.Config.root}/{self.localBkPath}/{childPath}'
     def getPermissionWebPath(self,childPath):
         if self.permissionWebPath=='':
             return ''
@@ -113,16 +126,19 @@ class SSH:
         cur_time=time.strftime("%Y%m%d_%H%M%S", time.localtime())
         cur_path=f'bck_{cur_time}.bck'
         print(f'ssh.backupFile:{cur_path}')
-        self.execCmd(f'tar cvzf {self.webRoot}/{self.getBckName()} {self.webRoot}/*')
+        self.execCmd(f'tar czf {self.webrootPath}/{self.getBckName()} {self.webrootPath}/*')  
         self.download(f'{self.getBckName()}',cur_path)
         self.bckPath.append(cur_path)
-        self.execCmd(f'rm -rf {self.webRoot}/{self.getBckName()}')
+        bckpath=self.getLocalPath(cur_path)
+        zxvfPath=f'{Setting.Config.root}/{self.localCodeReviewPath}'
+        anyError=Tools.CmdExec().execCmd(f'tar zxf  {bckpath} -C {zxvfPath}')
+        self.execCmd(f'rm -rf {self.webrootPath}/{self.getBckName()}')
     def deploy(self,bckPath):
         print(f'ssh.deploy:{bckPath}')
-        self.execCmd(f'rm -rf {self.webRoot}')
+        self.execCmd(f'rm -rf {self.webrootPath}')
         self.upload(bckPath,f'{self.getBckName()}')
-        self.execCmd(f'tar zxvf {self.webRoot}/{self.getBckName()} -C /') 
-        self.execCmd(f'rm -rf {self.webRoot}/{self.getBckName()}')
+        self.execCmd(f'tar zxf {self.webrootPath}/{self.getBckName()} -C /') 
+        self.execCmd(f'rm -rf {self.webrootPath}/{self.getBckName()}')
     def reDeploy(self,index=-1):
         if index==-1:
             index=len(self.bckPath)-1
@@ -131,15 +147,15 @@ class SSH:
     def __del__(self):
         self.disconnect()
     def __init__(self,serverConfig):
-        self.root=os.getcwd()
+        self.connected=False
         self.serverConfig=serverConfig
-        self.webRoot=self.serverConfig.webrootPath
+        self.webrootPath=self.serverConfig.webrootPath
         self.localBkPath=self.serverConfig.localBkPath
+        self.localCodeReviewPath=self.serverConfig.localCodeReviewPath
+        self.permissionWebPath=self.serverConfig.permissionWebPath
         self.serverConfig=serverConfig
         self.sshConfig=self.serverConfig.sshConfig
         self.dbConfig=self.serverConfig.dbConfig
-        self.webrootPath=self.serverConfig.webrootPath
-        self.permissionWebPath=self.serverConfig.permissionWebPath
         paramiko.util.log_to_file('paramiko.log')
         pass
     def __del__(self):
