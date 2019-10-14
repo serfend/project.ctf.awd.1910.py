@@ -14,7 +14,6 @@ class ReviewResult:
           self.desc=desc
           print (f"hole was found at {Tools.CC.WARNING}{path}:{line+1}{Tools.CC.ENDC} : {Tools.CC.HEADER}{desc}{Tools.CC.ENDC}")
 class CodeReview:
-    
     def __init__(self,config):
         self.localCodeReviewPath=config['self']['localCodeReviewPath']
         self.webrootPath=config['self']['webrootPath'] 
@@ -23,7 +22,7 @@ class CodeReview:
         self.fileReviewCounter=0
         self.holes=[]
         with open(f'{Setting.Config.exepath}/{Setting.Config.defaultSettingPath}/{self.review_checklist}','r+') as f:
-            tmp=json.load(f)[0]
+            tmp=json.load(f)
             for items in tmp:
                 tmpItem=[]
                 for item in tmp[items]:

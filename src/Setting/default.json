@@ -3,12 +3,13 @@
         "reloadSettingInterval": 10000
     },
     "self": {
-        "token": "serfendTeam",
+        
         "permissionWebPath": "/tmp",
         "webrootPath": "/app",
         "localBkPath": "/server_bck",
         "localCodeReviewPath": "/code_review",
         "review_checklist": "/reviewcheck.default.json",
+        "defender":"/defender.json",
         "sshConfig": {
             "hostname": "47.74.238.240",
             "port": "2201",
@@ -22,12 +23,12 @@
             "password": "pd"
         }
     },
-    "server": {
-        "url": "http://edprin.natappfree.cc",
-        "header": {
-            
-        },
-        "method": "get"
+    "submitserver": {
+        "url": "http://6md56z.natappfree.cc?token={0}&flag={1}",
+        "method": "get",
+        "payload":"",
+        "token": "serfendTeam",
+        "flagcmd":"cat /flag"
     },
     "env": {
         "ips": [
@@ -45,9 +46,14 @@
             }
         },
         "cmd_tpl": {
-            "default": "{0}",
-            "curl": "/usr/bin/curl {0} -d '{1}'",
-            "wget": "/usr/bin/wget {0}/?{1}"
+            "curl": {
+                "url":"/usr/bin/curl {0} {1} -d {2}",
+                "method":{"get":"","post":"-X POST"}
+            },
+            "wget": {
+                "url":"/usr/bin/wget {1} {2} {0}",
+                "method":{"get":"","post":"--post-data"}
+            }
         }
     }
 }
