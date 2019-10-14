@@ -1,0 +1,10 @@
+
+[
+    {
+        "payload":"p={0}",
+        "url":"admin/header.php",
+        "method":"get",
+        "cookies":"",
+        "teamBlacklist":[]
+    }
+]
