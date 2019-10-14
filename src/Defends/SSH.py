@@ -122,28 +122,29 @@ class SSH:
         wf=self.getWebPath(serverpath)
         print(f'ssh.downloadFile:{wf}->{lf}')
         self.sftp.get(wf,lf)
-    def backupserver(self):
+    def appendBckFile(self):
         cur_time=time.strftime("%Y%m%d_%H%M%S", time.localtime())
         cur_path=f'bck_{cur_time}.bck'
+        self.bckPath.append(cur_path)
+        return cur_path
+    def backupserver(self):
+        cur_path=self.appendBckFile()
         print(f'ssh.backupFile:{cur_path}')
         self.execCmd(f'tar czf {self.webrootPath}/{self.getBckName()} {self.webrootPath}/*')  
         self.download(f'{self.getBckName()}',cur_path)
-        self.bckPath.append(cur_path)
-        bckpath=self.getLocalPath(cur_path)
+        self.execCmd(f'rm -rf {self.webrootPath}/{self.getBckName()}')
+        return cur_path
+    def extractBackup(self,bck_path):
+        bckpath=self.getLocalPath(bck_path)
         zxvfPath=f'{Setting.Config.root}/{self.localCodeReviewPath}'
         anyError=Tools.CmdExec().execCmd(f'tar zxf  {bckpath} -C {zxvfPath}')
-        self.execCmd(f'rm -rf {self.webrootPath}/{self.getBckName()}')
-    def deploy(self,bckPath):
-        print(f'ssh.deploy:{bckPath}')
-        self.execCmd(f'rm -rf {self.webrootPath}')
+    def deploy(self,bckPath,cleardir=False):
+        print(f'ssh.deploy:{bckPath}{" with clear previous path" if cleardir else ""}')
+        if cleardir:
+            self.execCmd(f'rm -rf {self.webrootPath}')
         self.upload(bckPath,f'{self.getBckName()}')
         self.execCmd(f'tar zxf {self.webrootPath}/{self.getBckName()} -C /') 
         self.execCmd(f'rm -rf {self.webrootPath}/{self.getBckName()}')
-    def reDeploy(self,index=-1):
-        if index==-1:
-            index=len(self.bckPath)-1
-        cur_path=self.bckPath[index]
-        return self.deploy(cur_path)
     def __del__(self):
         self.disconnect()
     def __init__(self,serverConfig):
