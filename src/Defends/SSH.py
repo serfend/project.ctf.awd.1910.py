@@ -22,11 +22,12 @@ class SSH_Config:
         self.password=password
         self.pfile=pfile
 class ServerConfig:
-    def __init__(self,sshConfig, dbConfig,webrootPath,localBkPath=''):
+    def __init__(self,sshConfig, dbConfig,webrootPath,localBkPath='',permissionWebPath=''):
         self.sshConfig=sshConfig
         self.dbConfig=dbConfig
         self.webrootPath=webrootPath
         self.localBkPath=localBkPath
+        self.permissionWebPath=permissionWebPath
 class CmdResult:
     def getResult(self):
         return self.result
@@ -62,7 +63,8 @@ class SSH:
                 config['self']['dbConfig']['password']
                 ),
             config['self']['webrootPath'],
-            config['self']['localBkPath'])
+            config['self']['localBkPath'],
+            config['self']['permissionWebPath'])
     def connect(self):
         print(f'sshing:{self.sshConfig.hostname}:{self.sshConfig.port}')
         self.transport = paramiko.Transport((self.sshConfig.hostname, int(self.sshConfig.port)))
@@ -74,12 +76,17 @@ class SSH:
         print('ssh.disconnect()')
         self.transport.close()
     def execCmd(self,cmd):
-        print(f"ssh.execCmd:{cmd}")
         cmd=cmd.replace(';', ';\n')
         stdin, stdout, stderr = self.ssh.exec_command(cmd)
-        return CmdResult(stdin,stdout,stderr)
+        result= CmdResult(stdin,stdout,stderr)
+        print(f"ssh.execCmd:{cmd} \n-->{result.getResult()}")
+        return result
     def getLocalPath(self,childPath):
         return f'{self.root}/{self.localBkPath}/{childPath}'
+    def getPermissionWebPath(self,childPath):
+        if self.permissionWebPath=='':
+            return ''
+        return f'{self.permissionWebPath}/{childPath}'
     def getWebPath(self,childPath):
         return f'{self.webrootPath}/{childPath}'
     def getBckName(self):
@@ -87,8 +94,16 @@ class SSH:
     def upload(self,filepath,serverpath):
         lf=self.getLocalPath(filepath)
         wf=self.getWebPath(serverpath)
-        print(f'ssh.uploadFile:{wf}->{lf}')
-        self.sftp.put(self.getLocalPath(filepath),self.getWebPath(serverpath))
+        
+        permissionPath=self.getPermissionWebPath(serverpath)
+        print(permissionPath)
+        des=f'with permissionPath:{permissionPath}' if (permissionPath!='') else ''
+        print(f'ssh.uploadFile:{lf}->{wf} {des}')
+        if permissionPath=='':
+            self.sftp.put(self.getLocalPath(filepath),self.getWebPath(serverpath))
+        else:
+            self.sftp.put(self.getLocalPath(filepath),permissionPath)
+            self.execCmd(f'mv {permissionPath} {wf}')
     def download(self,serverpath,filepath):
         lf=self.getLocalPath(filepath)
         wf=self.getWebPath(serverpath)
@@ -106,7 +121,7 @@ class SSH:
         print(f'ssh.deploy:{bckPath}')
         self.execCmd(f'rm -rf {self.webRoot}')
         self.upload(bckPath,f'{self.getBckName()}')
-        self.execCmd(f'tar zxvf {self.webRoot}/{self.getBckName()}') 
+        self.execCmd(f'tar zxvf {self.webRoot}/{self.getBckName()} -C /') 
         self.execCmd(f'rm -rf {self.webRoot}/{self.getBckName()}')
     def reDeploy(self,index=-1):
         if index==-1:
@@ -124,7 +139,7 @@ class SSH:
         self.sshConfig=self.serverConfig.sshConfig
         self.dbConfig=self.serverConfig.dbConfig
         self.webrootPath=self.serverConfig.webrootPath
-        
+        self.permissionWebPath=self.serverConfig.permissionWebPath
         paramiko.util.log_to_file('paramiko.log')
         pass
     def __del__(self):
