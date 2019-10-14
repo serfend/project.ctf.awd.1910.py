@@ -1,0 +1,17 @@
+{
+    "checkupdate":true,
+    "depolylist":[
+        {
+            "name":"通防-hz1",
+            "description":"通用防御",
+            "path":"/depoly/AWD-Predator-Framework",
+            "deploy_cmd":"python console.py -?demo",
+            "schdule":[
+                {
+                    "interval":60,
+                    "cmd":"python console.py -?demo"
+                }
+            ]
+        }
+    ]
+}
