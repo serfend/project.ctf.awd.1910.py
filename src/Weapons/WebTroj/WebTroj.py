@@ -2,7 +2,9 @@
 import requests
 import base64
 import json
+import os
 from Tools.BackDoorDescription import *
+import Setting
 class WebTroj:
     i=0
     @property
@@ -12,7 +14,11 @@ class WebTroj:
     def useBckDoorIndex(self,v):
         self.i=v
     def __init__(self,seed,config):
-        self.bds=config['env']['rawbackdoor_list']
+        self.rawbackdoor_list=config['env']['rawbackdoor_list']
+        with open(f'{Setting.Config.root}/{Setting.Config.defaultSettingPath}//{self.rawbackdoor_list}') as f:
+            self.bds=json.load(f)
+        print(self.bds)
+        f.close()
         self.ips=config['env']['ips']
         self.webrootPath=config['self']['webrootPath']
         self.killer=config['troj']['killer']
