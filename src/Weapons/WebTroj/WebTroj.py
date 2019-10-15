@@ -15,15 +15,21 @@ class WebTroj:
         self.i=v
     def __init__(self,seed,config):
         self.rawbackdoor_list=config['env']['rawbackdoor_list']
-        with open(f'{Setting.Config.root}/{Setting.Config.defaultSettingPath}//{self.rawbackdoor_list}') as f:
+        with open(f'{Setting.Config.exepath}/{Setting.Config.defaultSettingPath}/{self.rawbackdoor_list}') as f:
             self.bds=json.load(f)
         print(self.bds)
         f.close()
+        troj=config['env']['troj']
         self.ips=config['env']['ips']
         self.webrootPath=config['self']['webrootPath']
-        self.killer=config['troj']['killer']
-        self.requestTimeout=config['requestTimeout']
-        self.team=DescriptionList(self.ips,self.webrootPath,seed)
+        self.killer=troj['killer']
+        self.requestTimeout=config['env']['requestTimeout']
+        self.team=DescriptionList(self.ips,
+                                  self.webrootPath,seed,
+                                  troj['fileType'],
+                                  troj['uploader'],
+                                  troj['tpl']['immortalTroj'],
+                                  troj['tpl']['subTroj'])
     def getBckPayload(self,cmd):
         return self.bds[self.i].payload.format(cmd)
     def getBckUrl(self,index):

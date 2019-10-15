@@ -20,7 +20,6 @@ if __name__ == "__main__":
     while not ssh.connected:
         ssh.connect()
     
-    ssh.upload()
     cur_path=ssh.backupserver()
     ssh.extractBackup(cur_path)
     codeReview=Defends.CodeReview(config)
