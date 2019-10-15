@@ -26,7 +26,7 @@ if __name__ == "__main__":
     codeReview.start()
     
     #ssh.deploy('bck_20191013_151029.bck')
-    # ssh.reDeploy()
+    ssh.redeploy()
     #print(ssh.execCmd('cd /app;ls -al').getMsg())
     pass
 

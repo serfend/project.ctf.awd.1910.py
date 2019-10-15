@@ -24,13 +24,10 @@ class SSH_Config:
         self.password=password
         self.pfile=pfile
 class ServerConfig:
-    def __init__(self,sshConfig, dbConfig,webrootPath,localBkPath='',localCodeReviewPath='',permissionWebPath=''):
+    def __init__(self,sshConfig, dbConfig,fileOperator):
         self.sshConfig=sshConfig
         self.dbConfig=dbConfig
-        self.webrootPath=webrootPath
-        self.localBkPath=localBkPath
-        self.permissionWebPath=permissionWebPath
-        self.localCodeReviewPath=localCodeReviewPath
+        self.fileOperator=fileOperator
 class CmdResult:
     def getResult(self):
         return self.result
@@ -52,7 +49,7 @@ class SSH:
     bckPath=[]
     @staticmethod
     def configStart(config):
-        configself=configself
+        configself=config['self']
         sshConfig=configself['sshConfig']
         dbConfig=configself['dbConfig']
         return ServerConfig(
@@ -68,10 +65,8 @@ class SSH:
                 dbConfig['username'],
                 dbConfig['password']
                 ),
-            configself['webrootPath'],
-            configself['localBkPath'],
-            configself['localCodeReviewPath'],
-            configself['permissionWebPath'])
+            Tools.FileOperator(config)
+            )
     def connect(self):
         print(f'sshing:{self.sshConfig.hostname}:{self.sshConfig.port}')
         try:
@@ -101,28 +96,30 @@ class SSH:
     def getBckName(self):
         return 'bck.tar'
     def upload(self,filepath,serverpath):
-        lf=self.getLocalPath(filepath)
-        wf=self.getWebPath(serverpath)
+        lf=self.fileOperator.getLocalPath(filepath)
+        wf=self.fileOperator.getWebPath(serverpath)
         
-        permissionPath=self.getPermissionWebPath(serverpath)
+        permissionPath=self.fileOperator.getPermissionWebPath(serverpath)
         print(permissionPath)
         des=f'with permissionPath:{permissionPath}' if (permissionPath!='') else ''
         print(f'ssh.uploadFile:{lf}->{wf} {des}')
         if permissionPath=='':
-            self.sftp.put(self.getLocalPath(filepath),self.getWebPath(serverpath))
+            self.sftp.put(self.fileOperator.getLocalPath(filepath),self.fileOperator.getWebPath(serverpath))
         else:
-            self.sftp.put(self.getLocalPath(filepath),permissionPath)
+            self.sftp.put(self.fileOperator.getLocalPath(filepath),permissionPath)
             self.execCmd(f'mv {permissionPath} {wf}')
     def download(self,serverpath,filepath):
-        lf=self.getLocalPath(filepath)
-        wf=self.getWebPath(serverpath)
+        lf=self.fileOperator.getLocalPath(filepath)
+        wf=self.fileOperator.getWebPath(serverpath)
         print(f'ssh.downloadFile:{wf}->{lf}')
         self.sftp.get(wf,lf)
     def appendBckFile(self):
-        cur_time=time.strftime("%Y%m%d_%H%M%S", time.localtime())
+        cur_time=Tools.CmdBuilder.StandardTime()
         cur_path=f'bck_{cur_time}.bck'
         self.bckPath.append(cur_path)
         return cur_path
+    def redeploy(self):
+        return self.deploy(self.bckPath[len(self.bckPath)-1])
     """
     将codereview文件夹打包到备份文件
     Returns:
@@ -135,26 +132,24 @@ class SSH:
     def backupserver(self):
         cur_path=self.appendBckFile()
         print(f'ssh.backupFile:{cur_path}')
-        self.execCmd(f'tar czf {self.webrootPath}/{self.getBckName()} {self.webrootPath}/*')  
+        self.execCmd(f'tar czf {self.fileOperator.webrootPath}/{self.getBckName()} {self.fileOperator.webrootPath}/*')  
         self.download(f'{self.getBckName()}',cur_path)
-        self.execCmd(f'rm -rf {self.webrootPath}/{self.getBckName()}')
+        self.execCmd(f'rm -rf {self.fileOperator.webrootPath}/{self.getBckName()}')
         return cur_path
+    def extractBackup(self,cur_path):
+        return self.fileOperator.extractBackup(cur_path)
     def deploy(self,bckPath,cleardir=False):
         print(f'ssh.deploy:{bckPath}{" with clear previous path" if cleardir else ""}')
         if cleardir:
-            self.execCmd(f'rm -rf {self.webrootPath}')
+            self.execCmd(f'rm -rf {self.fileOperator.webrootPath}')
         self.upload(bckPath,f'{self.getBckName()}')
-        self.execCmd(f'tar zxf {self.webrootPath}/{self.getBckName()} -C /') 
-        self.execCmd(f'rm -rf {self.webrootPath}/{self.getBckName()}')
+        self.execCmd(f'tar zxf {self.fileOperator.webrootPath}/{self.getBckName()} -C /') 
+        self.execCmd(f'rm -rf {self.fileOperator.webrootPath}/{self.getBckName()}')
     def __del__(self):
         self.disconnect()
     def __init__(self,serverConfig):
+        self.fileOperator=serverConfig.fileOperator
         self.connected=False
-        self.serverConfig=serverConfig
-        self.webrootPath=self.serverConfig.webrootPath
-        self.localBkPath=self.serverConfig.localBkPath
-        self.localCodeReviewPath=self.serverConfig.localCodeReviewPath
-        self.permissionWebPath=self.serverConfig.permissionWebPath
         self.serverConfig=serverConfig
         self.sshConfig=self.serverConfig.sshConfig
         self.dbConfig=self.serverConfig.dbConfig

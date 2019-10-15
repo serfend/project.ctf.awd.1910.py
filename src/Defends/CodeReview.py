@@ -31,7 +31,7 @@ class CodeReview:
                 self.rules[items]=tmpItem
     def start(self):
         reviewPath=f'{Setting.Config.root}/{self.localCodeReviewPath}'
-        startTxt=Tools.CC.showHeader(f'{self.__class__.__name__}.start')
+        startTxt=Tools.CC.r(f'{self.__class__.__name__}.start')
         print(f'{startTxt} at {reviewPath}')
         result= self.review(reviewPath)
         print(f'{startTxt} {reviewPath} completed with {self.fileReviewCounter} file{"s" if self.fileReviewCounter>1 else ""}')

@@ -22,6 +22,8 @@ class FileOperator:
             os.makedirs(self.packagePath)
         shutil.copy(packagePath,self.packagePath)
 
+
+
     def getLocalPath(self,childPath):
         return f'{Setting.Config.root}/{self.localBkPath}/{childPath}'
     def getPermissionWebPath(self,childPath):

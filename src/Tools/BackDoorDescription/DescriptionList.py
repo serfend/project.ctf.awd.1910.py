@@ -27,6 +27,7 @@ class DescriptionList:
             immortalTroj_Content=self.createUploader(immortalTroj_Content,immortalTroj_Name)
             self.childs.append(Description(immortalTroj_Name,subTroj_Name,subTroj_key,immortalTroj_Content))
     def createUploader(self,content,filename=f'uploader.{Tools.CmdBuilder.StandardTime()}'):
+        Tools.CmdBuilder.StandardTime()
         tmpTrojBase64Code=base64.b64encode(content.encode("utf-8")).decode("utf-8")
         self.__trojContent=self.uploader.format(tmpTrojBase64Code,filename)
     def __getitem__(self,index):
