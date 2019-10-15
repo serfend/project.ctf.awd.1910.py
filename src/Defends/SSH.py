@@ -52,23 +52,26 @@ class SSH:
     bckPath=[]
     @staticmethod
     def configStart(config):
+        configself=configself
+        sshConfig=configself['sshConfig']
+        dbConfig=configself['dbConfig']
         return ServerConfig(
             SSH_Config(
-                config['self']['sshConfig']['hostname'],
-                config['self']['sshConfig']['port'],
-                config['self']['sshConfig']['username'],
-                config['self']['sshConfig']['password'],
-                config['self']['sshConfig']['pfile']
+                sshConfig['hostname'],
+                sshConfig['port'],
+                sshConfig['username'],
+                sshConfig['password'],
+                sshConfig['pfile']
             ),
             DbConfig(
-                config['self']['dbConfig']['dbName'],
-                config['self']['dbConfig']['username'],
-                config['self']['dbConfig']['password']
+                dbConfig['dbName'],
+                dbConfig['username'],
+                dbConfig['password']
                 ),
-            config['self']['webrootPath'],
-            config['self']['localBkPath'],
-            config['self']['localCodeReviewPath'],
-            config['self']['permissionWebPath'])
+            configself['webrootPath'],
+            configself['localBkPath'],
+            configself['localCodeReviewPath'],
+            configself['permissionWebPath'])
     def connect(self):
         print(f'sshing:{self.sshConfig.hostname}:{self.sshConfig.port}')
         try:
@@ -94,14 +97,7 @@ class SSH:
         showstr='' if result.getResult()=='' else f'\n-->{result.getResult()}'
         print(f"ssh.execCmd:{cmd} {showstr}")
         return result
-    def getLocalPath(self,childPath):
-        return f'{Setting.Config.root}/{self.localBkPath}/{childPath}'
-    def getPermissionWebPath(self,childPath):
-        if self.permissionWebPath=='':
-            return ''
-        return f'{self.permissionWebPath}/{childPath}'
-    def getWebPath(self,childPath):
-        return f'{self.webrootPath}/{childPath}'
+ 
     def getBckName(self):
         return 'bck.tar'
     def upload(self,filepath,serverpath):
@@ -127,6 +123,15 @@ class SSH:
         cur_path=f'bck_{cur_time}.bck'
         self.bckPath.append(cur_path)
         return cur_path
+    """
+    将codereview文件夹打包到备份文件
+    Returns:
+        新的备份文件的路径
+    """
+    def packToBckFile(self):
+        print(f'{self.__class__.__name__}.packToBckFile')
+        newBckFilename=self.appendBckFile()
+        Tools.CmdExec().execCmd(f'tar czf  {self.localBkPath}/{newBckFilename} -C {self.localCodeReviewPath}/*')
     def backupserver(self):
         cur_path=self.appendBckFile()
         print(f'ssh.backupFile:{cur_path}')
@@ -134,10 +139,6 @@ class SSH:
         self.download(f'{self.getBckName()}',cur_path)
         self.execCmd(f'rm -rf {self.webrootPath}/{self.getBckName()}')
         return cur_path
-    def extractBackup(self,bck_path):
-        bckpath=self.getLocalPath(bck_path)
-        zxvfPath=f'{Setting.Config.root}/{self.localCodeReviewPath}'
-        anyError=Tools.CmdExec().execCmd(f'tar zxf  {bckpath} -C {zxvfPath}')
     def deploy(self,bckPath,cleardir=False):
         print(f'ssh.deploy:{bckPath}{" with clear previous path" if cleardir else ""}')
         if cleardir:

@@ -13,5 +13,5 @@ class CC:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     @staticmethod
-    def r(info,title=CC.HEADER):
-        return f'{title}{info}{CC.ENDC}'
+    def r(info,title=HEADER):
+        return f'{title}{info}{ENDC}'

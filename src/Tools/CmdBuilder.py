@@ -4,6 +4,18 @@ import time
 class CmdBuilder:
     def __init__(self):
         pass
+    """
+    获取标准时间格式
+    args:
+        targetTime:默认为time.localtime()
+    return:
+        time.strftime("%Y%m%d_%H%M%S", targetTime)
+    """
+    @staticmethod
+    def StandardTime(targetTime=None):
+        if targetTime==None:
+            targetTime=time.localtime()
+        return time.strftime("%Y%m%d_%H%M%S", targetTime)
     @staticmethod
     def buildCrontab(interval,shcmd):
         raw= f"{interval} * * * * {shcmd}"
