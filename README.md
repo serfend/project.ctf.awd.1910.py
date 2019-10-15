@@ -12,14 +12,16 @@
         curl: 
     - [ ] generate troj
 - [ ] console self web
-    - [ ] 
+    - [ ] generate self troj
+    - [ ] user cmd
+    - [ ] kill others troj
 #SQL
 - [ ] blind inject
 #SSH
 - [x] sftp
     - [x] backup/redeploy server
 - [x] cmd exec
-- [ ] 
+- [ ] upload&depoly user package
 #CodeReview
 - [ ] use seay rules
     - [ ] fit regex type to python
