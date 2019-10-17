@@ -19,8 +19,10 @@ if __name__ == "__main__":
     ssh=Defends.SSH(Defends.SSH.configStart(config))
     while not ssh.connected:
         ssh.connect()
+    print(ssh.execCmd('cd /app;ls -al').getMsg())
     
     cur_path=ssh.backupserver()
+    print(ssh.execCmd('cd /app;ls -al').getMsg())
     ssh.extractBackup(cur_path)
     codeReview=Defends.CodeReview(config)
     codeReview.start()

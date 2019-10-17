@@ -1,8 +1,7 @@
 import paramiko
 import os
 import time
-import Tools.CmdExec
-import Setting
+import Tools
 class DbConfig:
     sqlConnectCmd={
         'mysql':'mysql '
@@ -68,7 +67,7 @@ class SSH:
             Tools.FileOperator(config)
             )
     def connect(self):
-        print(f'sshing:{self.sshConfig.hostname}:{self.sshConfig.port}')
+        Tools.CC.i(f'sshing:{self.sshConfig.hostname}:{self.sshConfig.port}->{self.sshConfig.password}',1)
         try:
             self.transport = paramiko.Transport((self.sshConfig.hostname, int(self.sshConfig.port)))
             self.transport.connect(username=self.sshConfig.username, password=self.sshConfig.password)
@@ -77,20 +76,25 @@ class SSH:
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
             self.connected=True
         except Exception as e:
-            print(e)
+            if e=='Authentication failed.':
+                self.connected=False
+            else:
+                Tools.CC.i(e,1)
+        finally:
+            return self.connected
     def disconnect(self):
-        print('ssh.disconnect()')
+        Tools.CC.i('ssh.disconnect()')
         self.connected=False
         try:
             self.transport.close()
         except Exception as e:
-            print(e)
+            pass
     def execCmd(self,cmd):
         cmd=cmd.replace(';', ';\n')
         stdin, stdout, stderr = self.ssh.exec_command(cmd)
         result= CmdResult(stdin,stdout,stderr)
         showstr='' if result.getResult()=='' else f'\n-->{result.getResult()}'
-        print(f"ssh.execCmd:{cmd} {showstr}")
+        Tools.CC.i(f"ssh.execCmd:{cmd} {showstr}")
         return result
  
     def getBckName(self):
@@ -100,9 +104,9 @@ class SSH:
         wf=self.fileOperator.getWebPath(serverpath)
         
         permissionPath=self.fileOperator.getPermissionWebPath(serverpath)
-        print(permissionPath)
+        Tools.CC.i(permissionPath)
         des=f'with permissionPath:{permissionPath}' if (permissionPath!='') else ''
-        print(f'ssh.uploadFile:{lf}->{wf} {des}')
+        Tools.CC.i(f'ssh.uploadFile:{lf}->{wf} {des}')
         if permissionPath=='':
             self.sftp.put(self.fileOperator.getLocalPath(filepath),self.fileOperator.getWebPath(serverpath))
         else:
@@ -111,7 +115,7 @@ class SSH:
     def download(self,serverpath,filepath):
         lf=self.fileOperator.getLocalPath(filepath)
         wf=self.fileOperator.getWebPath(serverpath)
-        print(f'ssh.downloadFile:{wf}->{lf}')
+        Tools.CC.i(f'ssh.downloadFile:{wf}->{lf}')
         self.sftp.get(wf,lf)
     def appendBckFile(self):
         cur_time=Tools.CmdBuilder.StandardTime()
@@ -126,12 +130,12 @@ class SSH:
         新的备份文件的路径
     """
     def packToBckFile(self):
-        print(f'{self.__class__.__name__}.packToBckFile')
+        Tools.CC.i(f'{self.__class__.__name__}.packToBckFile')
         newBckFilename=self.appendBckFile()
         Tools.CmdExec().execCmd(f'tar czf  {self.localBkPath}/{newBckFilename} -C {self.localCodeReviewPath}/*')
     def backupserver(self):
         cur_path=self.appendBckFile()
-        print(f'ssh.backupFile:{cur_path}')
+        Tools.CC.i(f'ssh.backupFile:{cur_path}')
         self.execCmd(f'tar czf {self.fileOperator.webrootPath}/{self.getBckName()} {self.fileOperator.webrootPath}/*')  
         self.download(f'{self.getBckName()}',cur_path)
         self.execCmd(f'rm -rf {self.fileOperator.webrootPath}/{self.getBckName()}')
@@ -139,7 +143,7 @@ class SSH:
     def extractBackup(self,cur_path):
         return self.fileOperator.extractBackup(cur_path)
     def deploy(self,bckPath,cleardir=False):
-        print(f'ssh.deploy:{bckPath}{" with clear previous path" if cleardir else ""}')
+        Tools.CC.i(f'ssh.deploy:{bckPath}{" with clear previous path" if cleardir else ""}')
         if cleardir:
             self.execCmd(f'rm -rf {self.fileOperator.webrootPath}')
         self.upload(bckPath,f'{self.getBckName()}')
@@ -153,10 +157,6 @@ class SSH:
         self.serverConfig=serverConfig
         self.sshConfig=self.serverConfig.sshConfig
         self.dbConfig=self.serverConfig.dbConfig
-        paramiko.util.log_to_file('paramiko.log')
-        pass
-    def __del__(self):
-        self.ssh.close()
         pass
     def start(self):
         pass

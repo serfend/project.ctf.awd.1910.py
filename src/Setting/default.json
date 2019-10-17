@@ -11,10 +11,10 @@
         "review_checklist": "/reviewcheck.default.json",
         "defender":"/defender.json",
         "sshConfig": {
-            "hostname": "47.74.238.240",
-            "port": "2201",
+            "hostname": "192.168.43.38",
+            "port": "10003",
             "username": "ctf",
-            "password": "0e0e47ddb386b82f6a6c1a4655f67b30",
+            "password": "780e2f8ee823ef3b2d759aa571ef2db1",
             "pfile": ""
         },
         "dbConfig": {
@@ -53,6 +53,9 @@
             "wget": {
                 "url":"/usr/bin/wget {1} {2} {0}",
                 "method":{"get":"","post":"--post-data"}
+            },
+            "sh":{
+                "url":""
             }
         }
     }

