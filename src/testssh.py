@@ -3,10 +3,8 @@ import Defends
 import Tools
 import Setting
 import hashlib,random
-
 password_rnd="1234567890abcdefghijklmnopqrstuvwxyz"
 password_len=6
-
 def trySSH(config,password_6):
     config['self']['sshConfig']['password']=password_6
     ssh=Defends.SSH(Defends.SSH.configStart(config))
@@ -15,10 +13,8 @@ def callback(runner):
     runner.args[1]=nextPsw()
     if runner.args[1]==None:return False
     return True
-
 nowpsw=[]
 lenOfPswRnd=len(password_rnd)
-
 def nextPsw():
     pointer=password_len-1
     while True:
@@ -41,7 +37,7 @@ if __name__ == "__main__":
     config['self']['sshConfig']['username']= "ctf"
     runner=[]
     Tools.CC.DisplayRank=1
-    for i in range(4):
+    for i in range(48):
         runner.append(Tools.Runner(trySSH,[config,nextPsw()],callback))
     for r in runner:
         r.start()
