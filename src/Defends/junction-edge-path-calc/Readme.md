@@ -23,6 +23,8 @@
 1.2.3 定义常量 α1 α2 β1 β2 vf γ1
 
 
+
+
 2. 模块一实现
 
 2.1 输入 x拔
@@ -37,24 +39,26 @@
 
 2.5 result(index) = 道路长度l(index) / v(index)
 
+
+
 3. 模块二实现
 
 3.1 输入 x拔
 
-2.2 开始枚举节点JunctionNode从index=0到index=JunctionLength
+3.2 开始枚举节点JunctionNode从index=0到index=JunctionLength
       根据x(index)的key=1决定走向A和走向B
 
-2.3 走向A
+3.3 走向A
 
-2.3.1 根据x拔<γ2决定走向A1和走向A2从而得到x(index)
+3.3.1 根据x拔≤γ2决定走向A1和走向A2从而得到x(index)
 
-2.3.2 根据x拔<γ2决定走向A3和走向A4从而得到result(index)
+3.3.2 根据x拔≤γ2决定走向A3和走向A4从而得到result(index)
 
-2.3.3 根据JunctionChildNode列表的子节点位置关系（西北东南对应 v1 v2 v3 v4）
+3.3.3 根据JunctionChildNode列表的子节点位置关系（西北东南对应 v1 v2 v3 v4）
 
          判断是左转还是直行还是右转，从而得到η3，定义delay(index) =η3 · result(index)
 
-2.4 走向B result(index)直接定义为5
+3.4 走向B result(index)直接定义为5
 
 
 
