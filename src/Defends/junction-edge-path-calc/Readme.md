@@ -1,4 +1,4 @@
-# 该项目在交付的时候被店家强行停止，无法联系客户
+# The Project is cut off by shop-owner when i'm delivering it.
 
 > 
 >
