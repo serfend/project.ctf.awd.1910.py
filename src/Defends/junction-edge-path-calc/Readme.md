@@ -1,5 +1,7 @@
 # The Project is cut off by shop-owner when i'm delivering it.
 
+# Is there any way to contact my client directly
+
 > 
 >
 > 通过既定算法实现线段Edge和节点JunctionNode及其Child的各段耗时
