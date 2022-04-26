@@ -1,0 +1,29 @@
+{
+  "rules":{
+    "v1":{
+      "百度":["libbaiduprotect.so"],
+      "阿里聚安全":["libmobisec.so","libsgsecuritybody.so","libsgmain.so","aliprotect.dat"],
+      "腾讯":["mixz.dex","mix.dex","mix.dex","libshell.so","libexec.so","libtup.so"],
+      "腾讯云":["libxgVipSecurity.so","libxgVipSecurity.so","libshellx-super.2021.so","libshell-super.2021.so","libshell-super.2020.so","tencent_sub","libshell-super.2019.so"],
+      "腾讯御安全":["libtosprotection.armeabi.so","libtosprotection.x86.so","libtosprotection.armeabi-v7a.so"],
+      "网易易盾":["libnesec.so"],
+      "APKProtect":["libAPKProtect.so"],
+      "SerfendProtect":["libmprotect*.so"],
+      "SGTProtect":["libsgtprotect.so"],
+      "几维安全":["libkwscmm.so","libkwslinker.so","libkwscr.so"],
+      "顶像科技":["libx3g.so"],
+      "盛大":["libapssec.so"],
+      "瑞星":["librsprotect.so"],
+      "娜迦": ["libchaosvmp.so", "libddog.so", "libfdog.so", "libedog.so"],
+      "娜迦企业版": ["libedog.so"],
+      "爱加密": ["libexec.so", "libexecmain.so", "ijiami.dat"],
+      "爱加密企业版": ["ijiami.ajm"],
+      "梆梆免费版":["libSecShell.so","libsecmain.so","libsecexe.so"],
+      "梆梆企业版":["libDexHelper-x86.so"],
+      "360":["libjiagu_x86.so","libjiagu_art.so","libjiagu.so","libprotectClass.so"],
+      "通付盾":["libNSaferOnly.so","libegis.so"],
+      "网秦":["libnqshield.so"]
+    }
+  },
+  "banner":"目前仅支持的加固厂商：\n娜迦、梆梆、爱加密、通付盾、360加固、\n百度加固、阿里加固、腾讯加固、 网易易盾\n盛大加固、瑞星加固、网秦加固、\n国信灵通加固、几维安全加固、顶像科技加固、\napkprotect加固、等常规厂商"
+}
